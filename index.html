@@ -1,0 +1,376 @@
+<!-- 
+  Nombre del archivo: index.html 
+  Descripción: Tienda de Links Directos con bloqueo de pago.
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Links Store</title>
+    <!-- Fuente de Google para un look moderno -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- SDK de PayPal: REEMPLAZA 'sb' CON TU CLIENT ID REAL QUE COPIASTE -->
+    <script src="https://www.paypal.com/sdk/js?client-id=AdazUGdO090WdxqkaDpJZpOSG16T4Fw8JekN2fooflo0b3hOr3Us_D2505LHbgLZ7snDPmAteka3NijI&currency=USD"></script>
+
+    <style>
+        :root {
+            --primary-color: #00f2ea; /* Cian Neón */
+            --secondary-color: #ff0050; /* Rojo Neón */
+            --bg-color: #0f0f13;
+            --card-bg: #1a1a24;
+            --text-color: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        /* Header llamativo */
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(15,15,19,0) 100%);
+            border-bottom: 1px solid #333;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px var(--primary-color);
+        }
+
+        h1 span {
+            color: var(--primary-color);
+        }
+
+        p.subtitle {
+            color: #aaa;
+            font-size: 1rem;
+        }
+
+        /* Contenedor principal */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Grid de productos */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        /* Tarjeta del Link */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px rgba(0, 242, 234, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        /* Imagen/Thumbnail */
+        .card-image {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #2a2a36;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Cambiado para que la imagen se vea completa sin recortes */
+        }
+
+        /* Contenido de la tarjeta */
+        .card-content {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: #bbb;
+            margin-bottom: 20px;
+        }
+
+        .price-tag {
+            font-family: 'Roboto', sans-serif;
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        /* Botones */
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .btn-buy {
+            background: linear-gradient(45deg, #ff0050, #ff4b2b);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 0, 80, 0.4);
+        }
+
+        .btn-buy:hover {
+            filter: brightness(1.2);
+            transform: scale(1.02);
+        }
+
+        .btn-access {
+            background: linear-gradient(45deg, #00f2ea, #0080ff);
+            color: #000;
+            display: none; /* Oculto por defecto */
+            text-decoration: none;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 242, 234, 0.4);
+        }
+
+        .btn-access:hover {
+            filter: brightness(1.1);
+        }
+
+        /* Estado desbloqueado */
+        .card.unlocked .btn-buy {
+            display: none;
+        }
+        
+        .card.unlocked .btn-access {
+            display: block;
+        }
+
+        .card.unlocked .price-tag {
+            color: #00ff88; /* Verde éxito */
+            content: "PAGADO";
+        }
+
+        .payment-success-msg {
+            color: #00ff88;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 10px;
+            display: none; /* Oculto por defecto */
+            font-weight: bold;
+        }
+
+        .card.unlocked .payment-success-msg {
+            display: block;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #555;
+            font-size: 0.8rem;
+            margin-top: 50px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Direct<span>Link</span> Store</h1>
+        <p class="subtitle">si no quieres pasar los acortadores y quieres tu link directo adquierelo aqui. Desbloquea cada link por solo $0.80</p>
+    </header>
+
+    <div class="container">
+        <div class="grid" id="products-grid">
+            <!-- Los productos se generarán aquí con JavaScript -->
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 DirectLink Store. Todos los derechos reservados.
+    </footer>
+
+    <!-- Script de lógica -->
+    <script>
+        // ==========================================
+        // 1. BASE DE DATOS DE TUS LINKS (CONFIGURACIÓN)
+        // ==========================================
+        // Aquí es donde agregas tus nuevos videos/links.
+        // Copia y pega un bloque {...} y cambia los datos.
+        
+        const products = [
+            {
+                id: 1,
+                title: "Panel Laiton FF Link Directo",
+                description: "Desbloquea tu Link directo Del Panel Laiton FF .",
+                image: "laiton.jpeg", // Pon aquí la URL de tu miniatura
+                price: 0.80,
+                directLink: "https://www.mediafire.com/file/sfbs4ewtfl36eh5/LAILTON_FF_V10_BRUTAL.apk/file?dkey=lnyp0wpq3cc&r=1431" // El link que se desbloquea
+            },
+            // Para agregar otro, pon una coma arriba y pega esto:
+            // {
+            //     id: 4,
+            //     title: "Nuevo Video",
+            //     description: "Descripción...",
+            //     image: "url_imagen",
+            //     price: 0.25,
+            //     directLink: "url_del_link"
+            // }
+        ];
+
+        // ==========================================
+        // 2. LÓGICA DE RENDERIZADO
+        // ==========================================
+        const gridContainer = document.getElementById('products-grid');
+
+        function renderProducts() {
+            gridContainer.innerHTML = ''; // Limpiar grid
+
+            products.forEach(product => {
+                // Crear elemento tarjeta
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.id = `product-${product.id}`;
+
+                card.innerHTML = `
+                    <div class="card-image">
+                        <img src="${product.image}" alt="${product.title}">
+                    </div>
+                    <div class="card-content">
+                        <div>
+                            <h3 class="card-title">${product.title}</h3>
+                            <p class="card-desc">${product.description}</p>
+                        </div>
+                        <div>
+                            <span class="price-tag" id="price-${product.id}">$${product.price.toFixed(2)}</span>
+                            <div class="payment-success-msg" id="success-msg-${product.id}"></div>
+                            
+                            <!-- Botón de Compra -->
+                            <button class="btn btn-buy" id="btn-buy-${product.id}" onclick="initiatePayPal(${product.id}, ${product.price})">
+                                <i class="fas fa-shopping-cart"></i> Desbloquear
+                            </button>
+                            <div id="paypal-container-${product.id}"></div>
+
+                            <!-- Botón de Acceso (Oculto inicialmente) -->
+                            <a href="${product.directLink}" target="_blank" class="btn btn-access">
+                                <i class="fas fa-external-link-alt"></i> Ir al Link
+                            </a>
+                        </div>
+                    </div>
+                `;
+                gridContainer.appendChild(card);
+            });
+        }
+
+        // ==========================================
+        // 3. LÓGICA DE PAGO (SIMULACIÓN)
+        // ==========================================
+
+        function initiatePayPal(id, price) {
+            const buyBtn = document.getElementById(`btn-buy-${id}`);
+            const container = document.getElementById(`paypal-container-${id}`);
+
+            // 1. Ocultar el botón de "Desbloquear" para mostrar el de PayPal
+            if(buyBtn) buyBtn.style.display = 'none';
+
+            // 2. Renderizar el botón oficial de PayPal
+            paypal.Buttons({
+                style: {
+                    layout: 'vertical', // Esto hace que aparezca el botón negro de "Tarjeta"
+                    color:  'gold',
+                    shape:  'rect'
+                },
+                createOrder: function(data, actions) {
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: {
+                                value: price.toString() // El precio (0.25)
+                            },
+                            description: `Desbloqueo Link #${id}`
+                        }]
+                    });
+                },
+                onApprove: function(data, actions) {
+                    return actions.order.capture().then(function(details) {
+                        // Pago exitoso
+                        const successMsg = document.getElementById(`success-msg-${id}`);
+                        if(successMsg) {
+                            successMsg.innerText = '¡Pago completado! Acceso concedido.';
+                        }
+                        unlockProduct(id);
+                        container.innerHTML = ''; // Limpiamos el botón de PayPal
+                    });
+                },
+                onError: function(err) {
+                    console.error(err);
+                    alert("Hubo un error con el pago. Intenta de nuevo.");
+                    if(buyBtn) buyBtn.style.display = 'block'; // Volver a mostrar botón si falla
+                    container.innerHTML = '';
+                }
+            }).render(`#paypal-container-${id}`);
+        }
+
+        function unlockProduct(id) {
+            const card = document.getElementById(`product-${id}`);
+            const priceTag = document.getElementById(`price-${id}`);
+            
+            if (card) {
+                // Añadir clase que cambia el CSS
+                card.classList.add('unlocked');
+                
+                // Cambiar texto del precio
+                if(priceTag) priceTag.innerText = "DESBLOQUEADO";
+            }
+        }
+
+        // Inicializar la tienda
+        renderProducts();
+
+    </script>
+</body>
+</html>
